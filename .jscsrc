@@ -1,0 +1,11 @@
+{
+  "preset": "ember-suave",
+
+  "excludeFiles": ["modules/apollo-global/**"],
+
+  "requireCommentsToIncludeAccess": false,
+  "requireCamelCaseOrUpperCaseIdentifiers": false,
+  "disallowMultiLineTernary": true,
+  "disallowNestedTernaries": true
+}
+
