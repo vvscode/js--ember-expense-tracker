@@ -1,0 +1,64 @@
+#!/bin/sh
+
+# This hook is called with the following parameters:
+#
+# $1 -- Name of the remote to which the push is being done
+# $2 -- URL to which the push is being done
+#
+# If pushing without using a named remote those arguments will be equal.
+#
+# Information about the commits which are being pushed is supplied as lines to
+# the standard input in the form:
+#
+#   <local ref> <local sha1> <remote ref> <remote sha1>
+
+remote="$1"
+url="$2"
+
+z40=0000000000000000000000000000000000000000
+
+IFS=' '
+while read local_ref local_sha remote_ref remote_sha
+do
+	if [ "$local_sha" = $z40 ]
+	then
+		# Handle delete
+		:
+	else
+		if [ "$remote_sha" = $z40 ]
+		then
+			# New branch, examine all commits
+			checkResult=$(echo "$remote_ref" | grep -E "(TECH|QA|APOLLO)-[0-9]{2,}")
+			if [[ -z "$checkResult" ]]; then
+			         echo 'You use uncorrect branch name :(';
+			         echo 'Use "TECH-\d+" pattern at branch name'
+			         exit 1;
+			 else
+			        echo 'Hey. You use correct branch name. You are profi =)';
+			 fi;
+		else
+			:
+		fi;
+
+		# Check for WIP commit
+		# commit=`git rev-list -n 1 --grep '^WIP' "$range"`
+		# if [ -n "$commit" ]
+		# then
+		#	echo "Found WIP commit in $local_ref, not pushing"
+		#	exit 1
+		# fi
+	fi;
+done
+
+ember test --test-port=31337 --reporter=dot
+
+EXIT_CODE=$?
+if [[ ${EXIT_CODE} -ne 0 ]]; then
+    echo ""
+    echo "Tests failed."
+    echo -e "\033[0;31mCommit aborted\033[0m"
+    exit 1
+else
+  echo -e "\033[0;32mTests completed successfully\033[0m"
+  echo ""
+fi

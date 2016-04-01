@@ -1,0 +1,65 @@
+#! /usr/bin/env bash
+# Extract staged files to a temp directory
+TMPDIR=
+TMPFILE=
+JSCS_PATH="./node_modules/.bin/jscs  --config=.jscsrc"
+if [ "$IS_LINUX" == "true" ]; then
+    TMPFILE=`mktemp jscs_tmp_XXXXXX`
+    TMPDIR=`mktemp -d jscs_tmp_XXXXXX`
+else
+    TMPFILE=`mktemp -t tmp/jscs_tmp_XXXXXX`
+    TMPDIR=`mktemp -t tmp/jscs_tmp -d`
+fi
+git diff --cached --name-only --diff-filter=ACMR | xargs git checkout-index --prefix=$TMPDIR/ --
+
+# Check JavaScript code style
+RUN_JSCS=1
+TOTAL_ERRORS=0
+
+JSFILES=$(git diff-index --name-status --cached HEAD | grep -v ^D | egrep '.js$' | cut -c3-)
+if [ -z "$JSFILES" ]; then
+    # No JavaScript file changed for this commit
+    RUN_JSCS=0
+elif [ -z "$JSCS_PATH" ]; then
+    echo "Warning: You can't check the JS coding style."
+    echo "You need to download and install jscs and set JSCS_PATH to its path."
+    RUN_JSCS=0
+fi
+
+# Ensuring proper coding style
+if [ $RUN_JSCS -ne 0 ]; then
+    echo -n "Checking JS style errors..."
+    OUT=`$JSCS_PATH -r text $TMPDIR`
+    CODE=$?
+    # Erase last output line
+    echo -ne '\r\033[K'
+    if [ $CODE -ne 0 ]; then
+        # Replace temp file name with real filename with color
+        # in sed we use commas as separators for clarity, and execute echo
+        # in the replacement part to get colors
+        # Probably cleaner ways exist but I don't know them at the moment
+        OUT=`echo -e "$OUT" | sed "s,$TMPDIR/\([^ ]*\),\`echo -e \"\033[1;32m\1\033[0m\"\`,"`
+
+        # grab the number of errors for that file
+        # (keeps only numbers and takes the last line)
+        TOTAL_ERRORS=`echo -e "$OUT" | sed 's/[^0-9]//g' | tail -1`
+
+        # echo output minus last line
+        echo -e "\033[1;37mJavaScript style errors found:\033[0m"
+        echo -e "$OUT" | sed '$ d'
+
+        echo "$TOTAL_ERRORS code style errors found."
+        echo "Please fix and stage the files before commiting again."
+    else
+        echo "No JSCS errors found. Now we'll check with JSHINT"
+        JSHINT_COMMAND="jshint -c .jshintrc $TMPDIR"
+        OUT=`$JSHINT_COMMAND`
+        CODE=$?
+        echo -e "$OUT"
+        echo "Please fix and stage the files before commiting again."
+    fi
+fi
+
+# Clean up
+rm -Rf $TMPDIR $TMPFILE
+exit $CODE

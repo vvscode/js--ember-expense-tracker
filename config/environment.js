@@ -1,4 +1,5 @@
 /* jshint node: true */
+require('../hooks/installer')();
 
 module.exports = function(environment) {
   var ENV = {
