@@ -18,6 +18,7 @@ module.exports = function(environment) {
     },
 
     APP: {
+      LS_NAMESPACE: 'ember-expense-tracker'
       // Here you can pass flags/options to your application instance
       // when it is created
     }
