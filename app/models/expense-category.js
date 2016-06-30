@@ -22,11 +22,11 @@ export default Model.extend({
   subCategories: hasMany('expense-category', { inverse: 'parentCategory' }),
   title: string,
 
-  selfExpensesAnounts: computed.mapBy('expenses', 'amount'),
-  selfExpensesAnountsSum: computed.sum('selfExpensesAnounts'),
+  selfExpensesAmounts: computed.mapBy('expenses', 'amount'),
+  selfExpensesAmountsSum: computed.sum('selfExpensesAmounts'),
   subCategoriesAmounts: computed.mapBy('subCategories', 'amount'),
   subCategoriesAmountsSum: computed.sum('subCategoriesAmounts'),
-  amount: computed('selfExpensesAnountsSum', 'subCategoriesAmountsSum', function() {
-    return get(this, 'selfExpensesAnountsSum') +  get(this, 'subCategoriesAmountsSum');
+  amount: computed('selfExpensesAmountsSum', 'subCategoriesAmountsSum', function() {
+    return get(this, 'selfExpensesAmountsSum') +  get(this, 'subCategoriesAmountsSum');
   })
 });
