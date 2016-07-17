@@ -4,7 +4,7 @@ import moduleForAcceptance from 'js--ember-expense-tracker/tests/helpers/module-
 
 let store;
 
-moduleForAcceptance('Acceptance | expenses list', {
+moduleForAcceptance('Acceptance | expenses', {
   beforeEach() {
     store = this.application.__container__.lookup('service:store');
   },
@@ -13,10 +13,10 @@ moduleForAcceptance('Acceptance | expenses list', {
   }
 });
 
-test('visiting /expenses-list', function(assert) {
-  visit('/expenses-list');
+test('visiting /expenses', function(assert) {
+  visit('/expenses');
 
   andThen(function() {
-    assert.equal(currentURL(), '/expenses-list');
+    assert.equal(currentURL(), '/expenses');
   });
 });
