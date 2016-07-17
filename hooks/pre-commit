@@ -1,15 +1,8 @@
 #! /usr/bin/env bash
 # Extract staged files to a temp directory
-TMPDIR=
-TMPFILE=
+TMPDIR=~/tmp
+TMPFILE=~/tmp/file
 JSCS_PATH="./node_modules/.bin/jscs  --config=.jscsrc"
-if [ "$IS_LINUX" == "true" ]; then
-    TMPFILE=`mktemp jscs_tmp_XXXXXX`
-    TMPDIR=`mktemp -d jscs_tmp_XXXXXX`
-else
-    TMPFILE=`mktemp -t tmp/jscs_tmp_XXXXXX`
-    TMPDIR=`mktemp -t tmp/jscs_tmp -d`
-fi
 git diff --cached --name-only --diff-filter=ACMR | xargs git checkout-index --prefix=$TMPDIR/ --
 
 # Check JavaScript code style
