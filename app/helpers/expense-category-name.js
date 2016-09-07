@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+const { Helper } = Ember;
+
 export const NO_NAME = 'Uncategorized';
 
 export function expenseCategoryName([category, defaultName = 'Untitled']/*, hash*/) {
@@ -9,4 +11,4 @@ export function expenseCategoryName([category, defaultName = 'Untitled']/*, hash
   return category.title || defaultName;
 }
 
-export default Ember.Helper.helper(expenseCategoryName);
+export default Helper.helper(expenseCategoryName);
